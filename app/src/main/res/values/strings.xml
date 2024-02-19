@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">finanzas</string>
+    <string name="Add_income">Agregar ingreso</string>
+    <string name="Name">Nombre</string>
+    <string name="Amount">Monto</string>
+    <string name="Monthly">Mensual</string>
+    <string name="Fixed_value">Valor Fijo</string>
+    <string name="Tags">Etiquetas</string>
+    <string name="Date">Fecha</string>
+    <string name="Send">Enviar</string>
+</resources>
