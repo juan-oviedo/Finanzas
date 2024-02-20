@@ -4,26 +4,52 @@ import android.util.Log
 import java.lang.Exception
 import java.util.Date
 
-class Entradas (val amount: Double, val date: Date, val monthly: Boolean, val fixed: Boolean, val tags: String) {
-
-    // ahora deberia agregar los metodos para agregar la entrada a la base de datos
-
-}
-
-class Tags (val name: String){
-    var newTag = false
-    init {
-        try {
-            // buscar en la base de datos si existe el tag
+class Entradas () {
+// se puede dividir en 2 entradas, una de simple y otra mensual
+    fun addEntry (amount: Double, date: Date, tags: List<String>, monthly: Boolean, name: String, fixed: Boolean){
+        if (monthly){
+            complexEntry(amount, date, tags, name, fixed)
         }
-        catch (e: Exception) {
-            Log.i("tags", "no se encontro el tag $name")
-            newTag = true
+        else{
+            simpleEntry(amount, date, tags)
         }
     }
 
-    fun addTag(){
-        if (newTag){
+    //funcion para agregar una entrada simple (que no es mensual)
+    fun simpleEntry(amount: Double, date: Date,tags: List<String>){
+        //agregar la entrada a la base de datos
+    }
+
+    //funcion para agregar una entrada compleja
+    fun complexEntry (amount: Double, date: Date,tags: List<String>, name: String, fixed: Boolean){
+        //agregar la entrada simple:
+        simpleEntry(amount, date, tags)
+
+        //agregar a la tabla de entradas mensuales
+
+    }
+
+    //funcion para mostrar todas las entradas simples
+
+    //funcion para mostrar todas las entradas mensuales
+
+    //funcion para eliminar una entrada simple
+
+    //funcion para eliminar una entrada mensual
+
+    //funcion para editar una entrada simple
+
+    //funcion para editar una entrada compleja
+}
+
+class Tags (){
+    private fun searchTag(name: String): Boolean {
+        var isIn: Boolean = false
+        //buscar un tag en la base de datos
+        return isIn
+    }
+    fun addTag(name: String){
+        if (!searchTag(name)){
             //agregar un tag a la base de datos
         }
         else {
@@ -31,6 +57,18 @@ class Tags (val name: String){
         }
     }
 
-    //funcion para buscar un tag
-    //funcion para borrar un tag
+    fun listTags(){
+        //buscar en la base de datos todos los tags y devolver una lista
+    }
+
+    fun deleteTag(name: String){
+        if (!searchTag(name)){
+            //borrar de la base de datos
+        }
+        else{
+            throw IllegalAccessException("the tag $name is not in the data base\n ")
+        }
+    }
+
+    //funcion para editar un tag
 }
