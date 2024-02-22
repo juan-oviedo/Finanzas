@@ -30,10 +30,11 @@
                 android:textSize="30sp"/>
 
             <EditText
+                android:id="@+id/ET_amount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:hint="Enter a number"
+                android:hint="@string/enter_a_number"
                 android:inputType="numberDecimal"/>
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.cardview.widget.CardView>
@@ -145,6 +146,7 @@
         app:cardCornerRadius="16dp">
 
         <TextView
+            android:id="@+id/TV_send"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"

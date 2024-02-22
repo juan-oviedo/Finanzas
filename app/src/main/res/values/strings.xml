@@ -8,4 +8,9 @@
     <string name="Tags">Etiquetas</string>
     <string name="Date">Fecha</string>
     <string name="Send">Enviar</string>
+    <string name="enter_a_number">Ingrese un numero</string>
+    <string name="Insert_a_name">Ingrese un nombre</string>
+    <string name="Income">Ingreso</string>
+    <string name="Cost">Egreso</string>
+    <string name="Add_a_tag">Agregar un Tag</string>
 </resources>

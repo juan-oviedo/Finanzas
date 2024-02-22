@@ -35,8 +35,9 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         val cv = ContentValues()
         cv.put(Column_Tag_NAME, "DEFAULT")
 
-        val succes = db.insert(Tag_Table, null, cv)
-        if (succes == -1L){
+        val success = db.insert(Tag_Table, null, cv)
+        db.close()
+        if (success == -1L){
             throw SQLiteException("Default tag could not be inserted")
         }
     }
@@ -45,14 +46,32 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         TODO("Not yet implemented")
     }
 
-    fun add(): Long {
+    fun add_Entry(entry: Entry): Long {
         val db : SQLiteDatabase = this.writableDatabase
         val cv = ContentValues()
-        cv.put(Column_Entry_AMOUNT, 1234.12)
-        cv.put(Column_Entry_TAG, 1)
+        cv.put(Column_Entry_AMOUNT, entry.get_amount())
+        cv.put(Column_Entry_TAG, entry.get_tag())
 
         val id = db.insert(Entry_Table, null, cv)
+        db.close()
+        entry.set_id(id)
+        if (id == -1L){
+            throw SQLiteException("the element could not be inserted")
+        }
+        return id
+    }
 
+    fun add_Tag (tag: Tag) : Long{
+        val db : SQLiteDatabase = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(Column_Tag_NAME, tag.get_name())
+
+        val id = db.insert(Tag_Table, null, cv)
+        db.close()
+        tag.set_id(id)
+        if (id == -1L){
+            throw SQLiteException("the element could not be inserted")
+        }
         return id
     }
 

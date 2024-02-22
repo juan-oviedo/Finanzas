@@ -13,6 +13,7 @@
         android:id="@+id/Add_income"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         app:cardCornerRadius="16dp"
         app:cardBackgroundColor="@color/purple_200">
 
@@ -22,7 +23,25 @@
             android:text="@string/Add_income"
             android:textAllCaps="true"
             android:textSize="30sp"
-            android:gravity="center"> </TextView>
+            android:gravity="center"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/Add_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="@color/purple_200">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/Add_a_tag"
+            android:textAllCaps="true"
+            android:textSize="30sp"
+            android:gravity="center"/>
 
     </androidx.cardview.widget.CardView>
 </androidx.appcompat.widget.LinearLayoutCompat>

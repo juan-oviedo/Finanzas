@@ -1,42 +1,46 @@
 package com.example.finanzas
 
-import android.content.ContentValues
 
-class Entry (var id : Int?, var amount : Int?, var tag : Int?) {
-    constructor():this(null, null, null)
+class Entry (private var id : Long, private var amount : Double, private var tag : Long) {
+    constructor():this(-1, 0.0, 1)
 
-    // crear funciones para modificar cada uno de los elementos
+    fun get_id (): Long {
+        return id
+    }
+    fun set_id (newid : Long){
+        id = newid
+    }
+
+    fun get_amount (): Double {
+        return amount
+    }
+    fun set_amount (newamount : Double){
+        amount = newamount
+    }
+
+    fun get_tag (): Long {
+        return tag
+    }
+    fun set_tag (newtag : Long){
+        tag = newtag
+    }
 }
 
-class Tags (){
+class Tag (private var id : Long, private var name : String){
+    constructor():this(-1, "Default")
 
-    //los tag tienen que tener un maximo de 30 caracteres
-    private fun searchTag(name: String): Boolean {
-        var isIn: Boolean = false
-        //buscar un tag en la base de datos
-        return isIn
+
+    fun get_id (): Long {
+        return id
     }
-    fun addTag(name: String){
-        if (!searchTag(name)){
-            //agregar un tag a la base de datos
-        }
-        else {
-            throw IllegalAccessException("the tag $name has already been added\n ")
-        }
+    fun set_id (newid : Long){
+        id = newid
     }
 
-    fun listTags(){
-        //buscar en la base de datos todos los tags y devolver una lista
+    fun get_name (): String {
+        return name
     }
-
-    fun deleteTag(name: String){
-        if (!searchTag(name)){
-            //borrar de la base de datos
-        }
-        else{
-            throw IllegalAccessException("the tag $name is not in the data base\n ")
-        }
+    fun set_name(newname : String){
+        name = newname
     }
-
-    //funcion para editar un tag
 }
