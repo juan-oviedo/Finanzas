@@ -51,7 +51,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         app:cardCornerRadius="16dp"
-        app:cardBackgroundColor="@color/purple_200">
+        app:cardBackgroundColor="@color/purple_200"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="match_parent"

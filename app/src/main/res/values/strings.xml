@@ -16,4 +16,7 @@
     <string name="Add_a_cost">Agregar un costo</string>
     <string name="Calculate_balance">Calcular Balance</string>
     <string name="Balance">Balance</string>
+    <string name="Costs_">Costos:</string>
+    <string name="Ingresos_">Ingresos:</string>
+    <string name="Balance_">Balance:</string>
 </resources>

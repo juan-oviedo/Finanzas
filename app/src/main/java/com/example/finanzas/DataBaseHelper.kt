@@ -77,7 +77,12 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         return id
     }
 
-    fun get_all_Entry (): MutableList<Entry> {
+    /**
+     * This function get all entries from the data base,
+     * also (for efficiency) calculate the balance.
+     * the balance is return by the object result
+     */
+    fun get_all_Entry (result : Results): MutableList<Entry> {
         val returnList: MutableList<Entry> = mutableListOf()
 
         val query = "SELECT * FROM $Entry_Table"
@@ -95,7 +100,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
 
                 val entry = Entry(id, amount, tag_id, income)
                 returnList.add(entry)
-
+                result.calculateResult(amount, income)
             }while (cursor.moveToNext())
         }
 
