@@ -13,4 +13,7 @@
     <string name="Income">Ingreso</string>
     <string name="Cost">Egreso</string>
     <string name="Add_a_tag">Agregar un Tag</string>
+    <string name="Add_a_cost">Agregar un costo</string>
+    <string name="Calculate_balance">Calcular Balance</string>
+    <string name="Balance">Balance</string>
 </resources>

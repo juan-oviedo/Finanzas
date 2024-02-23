@@ -1,8 +1,8 @@
 package com.example.finanzas
 
 
-class Entry (private var id : Long, private var amount : Double, private var tag : Long) {
-    constructor():this(-1, 0.0, 1)
+class Entry (private var id : Long, private var amount : Double, private var tag : Long, private var income: Boolean) {
+    constructor():this(-1, 0.0, 1, true)
 
     fun get_id (): Long {
         return id
@@ -23,6 +23,13 @@ class Entry (private var id : Long, private var amount : Double, private var tag
     }
     fun set_tag (newtag : Long){
         tag = newtag
+    }
+
+    fun get_income (): Boolean {
+        return income
+    }
+    fun set_income (newincome : Boolean){
+        income = newincome
     }
 }
 
