@@ -4,10 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 
 class AddTagActivity : AppCompatActivity() {
 
     private lateinit var et_name : EditText
+    private lateinit var s_isIncome : SwitchCompat
     private lateinit var tv_send : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,6 +21,7 @@ class AddTagActivity : AppCompatActivity() {
 
     private fun initComponents(){
         et_name = findViewById(R.id.ET_name)
+        s_isIncome = findViewById(R.id.S_isIncome)
         tv_send = findViewById(R.id.TV_send)
     }
 
@@ -34,7 +37,8 @@ class AddTagActivity : AppCompatActivity() {
     private fun getTag(): Tag {
         // ver de sanitizar el string
         val text = et_name.text.toString()
-        val tag = Tag(-1, text)
+        val isIncome = s_isIncome.isChecked
+        val tag = Tag(-1, text, isIncome)
         return tag
     }
 }

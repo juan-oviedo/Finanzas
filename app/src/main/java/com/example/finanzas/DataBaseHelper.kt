@@ -15,6 +15,7 @@ const val Column_Entry_INCOME = "`INCOME`"
 const val Tag_Table = "`Tag_Table`"
 const val Column_Tag_ID = "`ID`"
 const val Column_Tag_NAME = "`Name`"
+const val Column_Tag_INCOME = "`INCOME`"
 
 class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db", null, 1){
 
@@ -29,7 +30,8 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
 
         val createTableTag : String = "CREATE TABLE $Tag_Table ( " +
                 " $Column_Tag_ID INTEGER PRIMARY KEY, " +
-                " $Column_Tag_NAME char(35)  NOT NULL DEFAULT '' " +
+                " $Column_Tag_NAME char(35)  NOT NULL DEFAULT '' , " +
+                " $Column_Tag_INCOME Boolean NOT NULL DEFAULT 'TRUE' " +
                 " ) "
 
         db.execSQL(createTableTag)
@@ -37,6 +39,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
 
         val cv = ContentValues()
         cv.put(Column_Tag_NAME, "DEFAULT")
+        cv.put(Column_Tag_INCOME, true)
 
         val success = db.insert(Tag_Table, null, cv)
         if (success == -1L){
@@ -101,6 +104,33 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 val entry = Entry(id, amount, tag_id, income)
                 returnList.add(entry)
                 result.calculateResult(amount, income)
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return returnList
+    }
+
+    fun get_all_tag (isIncome : Boolean) : MutableList<Tag> {
+        val returnList: MutableList<Tag> = mutableListOf()
+
+        TODO("arreglar el isIncome porque se esta guardando en la base de datos como TRUE")
+        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_INCOME = $isIncome"
+
+        val db : SQLiteDatabase = this.readableDatabase
+
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()){
+            do {
+                val id = cursor.getLong(0)
+                val name = cursor.getString(1)
+                val income = cursor.getInt(2) == 1
+
+                val tag = Tag(id, name, income)
+                returnList.add(tag)
+
             }while (cursor.moveToNext())
         }
 
