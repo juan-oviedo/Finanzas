@@ -55,7 +55,12 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         val db : SQLiteDatabase = this.writableDatabase
         val cv = ContentValues()
         cv.put(Column_Entry_AMOUNT, entry.get_amount())
-        cv.put(Column_Entry_TAG, entry.get_tag())
+        if (entry.get_tag() != null) {
+            cv.put(Column_Entry_TAG, entry.get_tag())
+        }
+        else{
+            cv.put(Column_Entry_TAG, 1)
+        }
         cv.put(Column_Entry_INCOME, entry.get_income())
 
 
@@ -71,6 +76,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         val db : SQLiteDatabase = this.writableDatabase
         val cv = ContentValues()
         cv.put(Column_Tag_NAME, tag.get_name())
+        cv.put(Column_Tag_INCOME, tag.get_is_income())
 
         val id = db.insert(Tag_Table, null, cv)
         tag.set_id(id)
@@ -115,8 +121,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
     fun get_all_tag (isIncome : Boolean) : MutableList<Tag> {
         val returnList: MutableList<Tag> = mutableListOf()
 
-        TODO("arreglar el isIncome porque se esta guardando en la base de datos como TRUE")
-        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_INCOME = $isIncome"
+        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_INCOME = $isIncome AND $Column_Tag_ID != 1"
 
         val db : SQLiteDatabase = this.readableDatabase
 

@@ -1,11 +1,14 @@
 package com.example.finanzas
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 
@@ -15,6 +18,8 @@ class AddIncomeActivity : AppCompatActivity() {
     private lateinit var et_amount : EditText
     private lateinit var tv_tag: TextView
     private lateinit var tv_send : TextView
+    private lateinit var showTagLauncher: ActivityResultLauncher<Intent>
+    private var tagIds : LongArray? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isIncome = intent.getBooleanExtra("isIncome", true)
@@ -23,6 +28,7 @@ class AddIncomeActivity : AppCompatActivity() {
         initLayout()
         initComponents()
         initListeners()
+        initLauncher()
     }
 
     private fun initLayout(){
@@ -51,7 +57,7 @@ class AddIncomeActivity : AppCompatActivity() {
     private fun navigateToShowTag (){
         val intent = Intent(this, ShowTagActivity::class.java)
         intent.putExtra("isIncome", isIncome)
-        startActivity(intent)
+        showTagLauncher.launch(intent)
     }
 
     private fun getEntry(): Entry {
@@ -62,8 +68,25 @@ class AddIncomeActivity : AppCompatActivity() {
         } catch (e: NumberFormatException) {
             Toast.makeText(this, "Invalid number format", Toast.LENGTH_LONG).show()
         }
-        val entry = Entry(-1, value, 1, isIncome)
+
+        var tagId :Long?  = 1
+        if (tagIds?.isNotEmpty() == true){
+            tagId = tagIds?.get(0)
+        }
+        val entry = Entry(-1, value, tagId, isIncome)
 
         return entry
+    }
+
+    private fun initLauncher(){
+        showTagLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                if (data != null) {
+                    tagIds = data.getLongArrayExtra("tagIds")
+                }
+
+            }
+        }
     }
 }

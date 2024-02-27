@@ -36,7 +36,7 @@ class Entry (private var id : Long, private var amount : Double, private var tag
 class Tag (private var id : Long, private var name : String, private var isIncome: Boolean){
     constructor():this(-1, "Default", true)
 
-
+    private var isClicked: Boolean = false
     fun get_id (): Long {
         return id
     }
@@ -56,5 +56,13 @@ class Tag (private var id : Long, private var name : String, private var isIncom
     }
     fun set_is_income(newIsIncome : Boolean){
         isIncome = newIsIncome
+    }
+
+    fun change_is_clicked(){
+        isClicked = !isClicked
+    }
+
+    fun get_is_clicked(): Boolean {
+        return isClicked
     }
 }

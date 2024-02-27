@@ -19,6 +19,13 @@ class TagAdapter (private val context : Activity, private val tagList : MutableL
 
         tag.text = tagList[position].get_name()
 
+        if (tagList[position].get_is_clicked()){
+            tag.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_700))
+        }
+        else{
+            tag.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200))
+        }
+
         return view
     }
 }
