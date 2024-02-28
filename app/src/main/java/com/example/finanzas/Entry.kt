@@ -66,3 +66,37 @@ class Tag (private var id : Long, private var name : String, private var isIncom
         return isClicked
     }
 }
+
+class TagBalance (private var id : Long, private var name : String, private var isIncome: Boolean, private var amount: Double){
+    constructor():this(-1, "Default", true, 0.0)
+
+    fun get_id (): Long {
+        return id
+    }
+    fun set_id (newid : Long){
+        id = newid
+    }
+
+    fun get_name (): String {
+        return name
+    }
+    fun set_name(newname : String){
+        name = newname
+    }
+
+    fun get_is_income (): Boolean {
+        return isIncome
+    }
+    fun set_is_income(newIsIncome : Boolean){
+        isIncome = newIsIncome
+    }
+
+    fun get_amount (): Double {
+        return  amount
+    }
+
+    fun set_amount (newamount: Double){
+        amount = newamount
+    }
+}
+

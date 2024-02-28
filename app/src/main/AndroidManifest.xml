@@ -13,6 +13,9 @@
         android:theme="@style/Theme.Finanzas"
         tools:targetApi="31">
         <activity
+            android:name=".TagBalanceActivity"
+            android:exported="false" />
+        <activity
             android:name=".ShowTagActivity"
             android:exported="false" />
         <activity

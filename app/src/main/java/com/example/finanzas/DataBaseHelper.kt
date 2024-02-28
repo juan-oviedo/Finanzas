@@ -5,17 +5,18 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 const val Entry_Table = "`Entry_Table`"
-const val Column_Entry_ID = "`ID`"
+const val Column_Entry_ID = "`ID_Entry`"
 const val Column_Entry_AMOUNT = "`Amount`"
 const val Column_Entry_TAG = "`Tag_ID`"
-const val Column_Entry_INCOME = "`INCOME`"
+const val Column_Entry_INCOME = "`IS_INCOME_Entry`"
 
 const val Tag_Table = "`Tag_Table`"
-const val Column_Tag_ID = "`ID`"
+const val Column_Tag_ID = "`ID_Tag`"
 const val Column_Tag_NAME = "`Name`"
-const val Column_Tag_INCOME = "`INCOME`"
+const val Column_Tag_INCOME = "`IS_INCOME_Tag`"
 
 class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db", null, 1){
 
@@ -136,6 +137,40 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 val tag = Tag(id, name, income)
                 returnList.add(tag)
 
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return returnList
+    }
+
+    fun get_tag_balance (): MutableList<TagBalance>{
+        val returnList: MutableList<TagBalance> = mutableListOf()
+
+        val query = "SELECT " +
+                    "   t.$Column_Tag_ID AS tag_id, " +
+                    "   t.$Column_Tag_NAME AS tag_name, " +
+                    "   t.$Column_Tag_INCOME AS is_income, " +
+                    "   SUM(e.$Column_Entry_AMOUNT) AS total_amount " +
+                    " FROM $Entry_Table e " +
+                    " JOIN $Tag_Table t ON e.$Column_Entry_TAG = t.$Column_Tag_ID " +
+                    " WHERE $Column_Tag_ID != 1" +
+                    " GROUP BY e.$Column_Entry_TAG "
+
+        val db : SQLiteDatabase = this.readableDatabase
+
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()){
+            do {
+                val id = cursor.getLong(0)
+                val name = cursor.getString(1)
+                val income = cursor.getInt(2) == 1
+                val amount = cursor.getDouble(3)
+
+                val tagBalance = TagBalance(id, name, income, amount)
+                returnList.add(tagBalance)
             }while (cursor.moveToNext())
         }
 
