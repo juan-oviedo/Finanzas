@@ -1,5 +1,6 @@
 package com.example.finanzas
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.EditText
@@ -21,6 +22,14 @@ class ListEntryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_list_entry)
 
         initComponents()
+        initListeners()
+        showList()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initComponents()
+        initListeners()
         showList()
     }
 
@@ -40,5 +49,14 @@ class ListEntryActivity : AppCompatActivity() {
         tv_cost.text = result.getCost().toString()
         tv_income.text = result.getIncome().toString()
         tv_balance.text = result.getResult().toString()
+    }
+
+    private fun initListeners(){
+        lv_entry.setOnItemClickListener { parent, view, position, id ->
+
+            val intent = Intent(this, DetailEntryActivity::class.java)
+            intent.putExtra("id", entryList[position].get_id())
+            startActivity(intent)
+        }
     }
 }

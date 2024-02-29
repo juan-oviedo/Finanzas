@@ -11,10 +11,14 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class AddIncomeActivity : AppCompatActivity() {
 
     private var isIncome : Boolean = true
+    private var isUpdate : Boolean = false
+    private var entryID : Long = -1
     private lateinit var et_amount : EditText
     private lateinit var tv_tag: TextView
     private lateinit var tv_send : TextView
@@ -22,13 +26,20 @@ class AddIncomeActivity : AppCompatActivity() {
     private var tagIds : LongArray? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isIncome = intent.getBooleanExtra("isIncome", true)
+
         setContentView(R.layout.activity_add_income)
 
+        initAttributes()
         initLayout()
         initComponents()
         initListeners()
         initLauncher()
+    }
+
+    private fun initAttributes(){
+        isIncome = intent.getBooleanExtra("isIncome", true)
+        isUpdate = intent.getBooleanExtra("isUpdate", false)
+        entryID = intent.getLongExtra("entryID", -1)
     }
 
     private fun initLayout(){
@@ -49,7 +60,13 @@ class AddIncomeActivity : AppCompatActivity() {
         tv_send.setOnClickListener{
             val entry = getEntry()
             val helper = DataBaseHelper(this)
-            helper.add_Entry(entry)
+
+            if (isUpdate){
+                val id = helper.update_Entry(entry)
+            }
+            else {
+                helper.add_Entry(entry)
+            }
             finish()
         }
     }
@@ -73,7 +90,11 @@ class AddIncomeActivity : AppCompatActivity() {
         if (tagIds?.isNotEmpty() == true){
             tagId = tagIds?.get(0)
         }
-        val entry = Entry(-1, value, tagId, isIncome)
+
+        val timestampString = LocalDateTime.now()
+        val timeCreation = timestampString.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+        val entry = Entry(entryID, value, tagId, isIncome, timeCreation)
 
         return entry
     }

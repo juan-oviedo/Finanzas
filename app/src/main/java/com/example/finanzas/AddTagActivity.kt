@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class AddTagActivity : AppCompatActivity() {
 
@@ -38,7 +40,11 @@ class AddTagActivity : AppCompatActivity() {
         // ver de sanitizar el string
         val text = et_name.text.toString()
         val isIncome = s_isIncome.isChecked
-        val tag = Tag(-1, text, isIncome)
+
+        val timestampString = LocalDateTime.now()
+        val timeCreation = timestampString.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+        val tag = Tag(-1, text, isIncome, timeCreation)
         return tag
     }
 }

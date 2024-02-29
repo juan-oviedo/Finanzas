@@ -20,4 +20,6 @@
     <string name="Ingresos_">Ingresos:</string>
     <string name="Balance_">Balance:</string>
     <string name="Balance_for_tag">Balance por tag</string>
+    <string name="Edit">Editar</string>
+    <string name="Delete">Borrar</string>
 </resources>

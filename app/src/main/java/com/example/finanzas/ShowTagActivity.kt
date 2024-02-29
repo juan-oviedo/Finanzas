@@ -30,8 +30,8 @@ class ShowTagActivity : AppCompatActivity() {
     private fun initComponents(){
         gv_tag = findViewById(R.id.GV_tag)
         tv_send = findViewById(R.id.TV_send)
-        val helper = DataBaseHelper(this)
 
+        val helper = DataBaseHelper(this)
         tagList = helper.get_all_tag(isIncome)
     }
 
