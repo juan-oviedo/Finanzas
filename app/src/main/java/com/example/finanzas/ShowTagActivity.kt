@@ -37,7 +37,7 @@ class ShowTagActivity : AppCompatActivity() {
 
     private fun showList(){
         gv_tag.isClickable = true
-        gv_tag.adapter = TagAdapter(this, tagList)
+        gv_tag.adapter = TagAdapter(this, tagList, true)
     }
 
     private fun initListeners(){

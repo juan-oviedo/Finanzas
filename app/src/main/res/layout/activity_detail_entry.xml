@@ -32,14 +32,15 @@
         app:cardBackgroundColor="@color/purple_200"
         app:cardCornerRadius="16dp">
 
-        <TextView
-            android:id="@+id/TV_tag"
+        <GridView
+            android:id="@+id/GV_tag"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="etiquetas"
-            android:textAllCaps="true"
-            android:textSize="30sp"/>
+            android:layout_height="0dp"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="5dp"
+            android:horizontalSpacing="5dp"
+            tools:listitem="@layout/show_tag"
+            />
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView

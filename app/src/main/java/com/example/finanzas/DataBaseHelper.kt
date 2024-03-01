@@ -16,6 +16,7 @@ const val Column_Entry_TAG = "`Tag_ID`"
 const val Column_Entry_INCOME = "`IS_INCOME_Entry`"
 const val Column_Entry_TIME_CREATION = "`TIME_CREATION_Entry`"
 const val Column_Entry_TIME_UPDATE = "`TIME_UPDATE_Entry`"
+const val Column_Entry_TIME_DELETION = "`TIME_DELETION_Entry`"
 
 const val Tag_Table = "`Tag_Table`"
 const val Column_Tag_ID = "`ID_Tag`"
@@ -23,6 +24,7 @@ const val Column_Tag_NAME = "`Name`"
 const val Column_Tag_INCOME = "`IS_INCOME_Tag`"
 const val Column_Tag_TIME_CREATION = "`TIME_CREATION_Tag`"
 const val Column_Tag_TIME_UPDATE = "`TIME_UPDATE_tag`"
+const val Column_Tag_TIME_DELETION = "`TIME_DELETION_Tag`"
 
 class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db", null, 1){
 
@@ -34,6 +36,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 " $Column_Entry_INCOME Boolean NOT NULL DEFAULT 'TRUE' , " +
                 " $Column_Entry_TIME_CREATION char(23)  NOT NULL DEFAULT '' ," +
                 " $Column_Entry_TIME_UPDATE char(23)  NOT NULL DEFAULT '' ," +
+                " $Column_Entry_TIME_DELETION char(23) ," +
                 " FOREIGN KEY ($Column_Entry_TAG) REFERENCES $Tag_Table($Column_Tag_ID) " +
                 " ) "
 
@@ -42,7 +45,8 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 " $Column_Tag_NAME char(35)  NOT NULL DEFAULT '' , " +
                 " $Column_Tag_INCOME Boolean NOT NULL DEFAULT 'TRUE' ," +
                 " $Column_Tag_TIME_CREATION char(23)  NOT NULL DEFAULT '' , " +
-                " $Column_Tag_TIME_UPDATE char(23)  NOT NULL DEFAULT ''  " +
+                " $Column_Tag_TIME_UPDATE char(23)  NOT NULL DEFAULT ''  ," +
+                " $Column_Tag_TIME_DELETION char(23) " +
                 " ) "
 
         db.execSQL(createTableTag)
@@ -107,7 +111,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
     fun get_all_Entry (result : Results): MutableList<Entry> {
         val returnList: MutableList<Entry> = mutableListOf()
 
-        val query = "SELECT * FROM $Entry_Table"
+        val query = "SELECT * FROM $Entry_Table WHERE $Column_Entry_TIME_DELETION IS NULL"
 
         val db : SQLiteDatabase = this.readableDatabase
 
@@ -135,7 +139,8 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
     fun get_all_tag (isIncome : Boolean) : MutableList<Tag> {
         val returnList: MutableList<Tag> = mutableListOf()
 
-        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_INCOME = $isIncome AND $Column_Tag_ID != 1"
+        val query = "SELECT * FROM $Tag_Table " +
+                    " WHERE $Column_Tag_INCOME = $isIncome AND $Column_Tag_ID != 1 AND $Column_Tag_TIME_DELETION IS NULL"
 
         val db : SQLiteDatabase = this.readableDatabase
 
@@ -169,7 +174,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                     " SUM(e.$Column_Entry_AMOUNT) AS total_amount " +
                     " FROM $Entry_Table e " +
                     " JOIN $Tag_Table t ON e.$Column_Entry_TAG = t.$Column_Tag_ID " +
-                    " WHERE $Column_Tag_ID != 1" +
+                    " WHERE $Column_Tag_ID != 1 AND $Column_Entry_TIME_DELETION IS NULL AND $Column_Tag_TIME_DELETION IS NULL" +
                     " GROUP BY e.$Column_Entry_TAG "
 
         val db : SQLiteDatabase = this.readableDatabase
@@ -194,7 +199,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
     }
 
     fun get_entry (entryId : Long): Entry {
-        val query = "SELECT * FROM $Entry_Table WHERE $Column_Entry_ID == $entryId"
+        val query = "SELECT * FROM $Entry_Table WHERE $Column_Entry_ID == $entryId AND $Column_Entry_TIME_DELETION IS NULL"
 
         val db : SQLiteDatabase = this.readableDatabase
 
@@ -237,6 +242,11 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         }
         cv.put(Column_Entry_INCOME, entry.get_income())
 
+        val time = LocalDateTime.now()
+        val timeUpdate = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+        cv.put(Column_Entry_TIME_UPDATE, timeUpdate)
+
         val id = entry.get_id()
 
         val affectedRows  = db.update(Entry_Table, cv, "$Column_Entry_ID == $id", null )
@@ -248,6 +258,59 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         }
         db.close()
         return id
+    }
+
+    fun delete_Entry (entry: Entry): Long {
+        val db : SQLiteDatabase = this.writableDatabase
+        val cv = ContentValues()
+
+        val time = LocalDateTime.now()
+        val timeDeletion = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+        cv.put(Column_Entry_TIME_DELETION, timeDeletion)
+
+        val id = entry.get_id()
+
+        val affectedRows  = db.update(Entry_Table, cv, "$Column_Entry_ID == $id", null )
+
+        if (affectedRows == 0) {
+            // Handle the case where no rows were affected (entry with the given ID not found)
+            db.close()
+            throw IllegalStateException("No entry found with ID $id")
+        }
+        db.close()
+        return id
+    }
+
+    fun get_Tag (tagId : Long): Tag {
+        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_ID == $tagId AND $Column_Tag_TIME_DELETION IS NULL"
+
+        val db : SQLiteDatabase = this.readableDatabase
+
+        val cursor = db.rawQuery(query, null)
+
+        if(cursor.count > 1){
+            cursor.close()
+            db.close()
+            throw IllegalStateException("Database is inconsistent: Multiple data found for id $tagId")
+        }else if (cursor.count == 0){
+            cursor.close()
+            db.close()
+            throw IllegalStateException("Database is inconsistent: No data found for id $tagId")
+        }
+
+        cursor.moveToFirst()
+
+        val id = cursor.getLong(0)
+        val name = cursor.getString(1)
+        val income = cursor.getInt(2) == 1
+        val timeCreation = cursor.getString(3)
+
+        val tag = Tag(id, name, income, timeCreation)
+
+        cursor.close()
+        db.close()
+        return tag
     }
 
     fun time (){

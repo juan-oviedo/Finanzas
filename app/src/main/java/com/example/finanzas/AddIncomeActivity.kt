@@ -86,13 +86,13 @@ class AddIncomeActivity : AppCompatActivity() {
             Toast.makeText(this, "Invalid number format", Toast.LENGTH_LONG).show()
         }
 
-        var tagId :Long?  = 1
+        var tagId :Long  = 1
         if (tagIds?.isNotEmpty() == true){
-            tagId = tagIds?.get(0)
+            tagId = tagIds?.get(0)!!
         }
 
-        val timestampString = LocalDateTime.now()
-        val timeCreation = timestampString.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        val time = LocalDateTime.now()
+        val timeCreation = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
         val entry = Entry(entryID, value, tagId, isIncome, timeCreation)
 

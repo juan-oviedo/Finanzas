@@ -1,7 +1,7 @@
 package com.example.finanzas
 
 
-class Entry (private var id : Long, private var amount : Double, private var tag : Long?,
+class Entry (private var id : Long, private var amount : Double, private var tag : Long,
              private var income: Boolean, private var timeCreation : String) {
     constructor():this(-1, 0.0, 1, true, "")
 
@@ -19,7 +19,7 @@ class Entry (private var id : Long, private var amount : Double, private var tag
         amount = newAmount
     }
 
-    fun get_tag (): Long? {
+    fun get_tag (): Long {
         return tag
     }
     fun set_tag (newTag : Long){

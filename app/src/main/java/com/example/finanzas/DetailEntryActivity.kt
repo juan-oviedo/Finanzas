@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.GridView
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,7 +17,7 @@ class DetailEntryActivity : AppCompatActivity() {
     private lateinit var entry : Entry
     private lateinit var ll_body : LinearLayoutCompat
     private lateinit var tv_amount : TextView
-    private lateinit var tv_tag : TextView
+    private lateinit var gv_tag : GridView
     private lateinit var tv_edit : TextView
     private lateinit var tv_delete : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +29,7 @@ class DetailEntryActivity : AppCompatActivity() {
         initComponents()
         initLayout()
         initListeners()
+        showList()
     }
 
     override fun onResume() {
@@ -44,7 +46,7 @@ class DetailEntryActivity : AppCompatActivity() {
     private fun initComponents(){
         ll_body = findViewById(R.id.LL_body)
         tv_amount = findViewById(R.id.TV_amount)
-        tv_tag = findViewById(R.id.TV_tag)
+        gv_tag = findViewById(R.id.GV_tag)
         tv_edit = findViewById(R.id.TV_edit)
         tv_delete = findViewById(R.id.TV_delete)
 
@@ -64,6 +66,12 @@ class DetailEntryActivity : AppCompatActivity() {
 
     private fun initListeners(){
         tv_edit.setOnClickListener { navigateToAddIncome() }
+
+        tv_delete.setOnClickListener {
+            val helper = DataBaseHelper(this)
+            helper.delete_Entry(entry)
+            finish()
+        }
     }
 
     private fun navigateToAddIncome(){
@@ -72,5 +80,13 @@ class DetailEntryActivity : AppCompatActivity() {
         intent.putExtra("isUpdate", true)
         intent.putExtra("entryID", entryId)
         startActivity(intent)
+    }
+
+    private fun showList(){
+        val helper = DataBaseHelper(this)
+        val tagList : MutableList<Tag> = mutableListOf()
+        tagList.add(helper.get_Tag(entry.get_tag()))
+
+        gv_tag.adapter = TagAdapter(this, tagList, false)
     }
 }
