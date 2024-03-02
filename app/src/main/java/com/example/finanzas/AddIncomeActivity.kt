@@ -62,7 +62,7 @@ class AddIncomeActivity : AppCompatActivity() {
             val helper = DataBaseHelper(this)
 
             if (isUpdate){
-                val id = helper.update_Entry(entry)
+                helper.update_Entry(entry)
             }
             else {
                 helper.add_Entry(entry)
@@ -86,15 +86,12 @@ class AddIncomeActivity : AppCompatActivity() {
             Toast.makeText(this, "Invalid number format", Toast.LENGTH_LONG).show()
         }
 
-        var tagId :Long  = 1
-        if (tagIds?.isNotEmpty() == true){
-            tagId = tagIds?.get(0)!!
-        }
-
         val time = LocalDateTime.now()
         val timeCreation = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
-        val entry = Entry(entryID, value, tagId, isIncome, timeCreation)
+        val tagList = tagIds?.toList() ?: emptyList()
+
+        val entry = Entry(entryID, value, tagList, isIncome, timeCreation)
 
         return entry
     }
@@ -106,7 +103,6 @@ class AddIncomeActivity : AppCompatActivity() {
                 if (data != null) {
                     tagIds = data.getLongArrayExtra("tagIds")
                 }
-
             }
         }
     }

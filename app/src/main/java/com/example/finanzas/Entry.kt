@@ -1,10 +1,8 @@
 package com.example.finanzas
 
 
-class Entry (private var id : Long, private var amount : Double, private var tag : Long,
+class Entry (private var id : Long, private var amount : Double, private var tags : List<Long>,
              private var income: Boolean, private var timeCreation : String) {
-    constructor():this(-1, 0.0, 1, true, "")
-
     fun get_id (): Long {
         return id
     }
@@ -19,11 +17,11 @@ class Entry (private var id : Long, private var amount : Double, private var tag
         amount = newAmount
     }
 
-    fun get_tag (): Long {
-        return tag
+    fun get_tags (): List<Long> {
+        return tags
     }
-    fun set_tag (newTag : Long){
-        tag = newTag
+    fun set_tags (newTags : List<Long>){
+        tags = newTags
     }
 
     fun get_income (): Boolean {
@@ -41,8 +39,7 @@ class Entry (private var id : Long, private var amount : Double, private var tag
     }
 }
 
-class Tag (private var id : Long, private var name : String, private var isIncome: Boolean, private var timeCreation : String){
-    constructor():this(-1, "Default", true, "")
+class Tag (private var id : Long, private var name : String, private var isIncome: Boolean){
 
     private var isClicked: Boolean = false
     fun get_id (): Long {
@@ -72,13 +69,6 @@ class Tag (private var id : Long, private var name : String, private var isIncom
 
     fun get_is_clicked(): Boolean {
         return isClicked
-    }
-
-    fun get_timeCreation (): String{
-        return timeCreation
-    }
-    fun set_timeCreation (newTimeCreation : String){
-        timeCreation = newTimeCreation
     }
 }
 

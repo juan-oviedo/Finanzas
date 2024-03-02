@@ -40,11 +40,7 @@ class AddTagActivity : AppCompatActivity() {
         // ver de sanitizar el string
         val text = et_name.text.toString()
         val isIncome = s_isIncome.isChecked
-
-        val timestampString = LocalDateTime.now()
-        val timeCreation = timestampString.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-
-        val tag = Tag(-1, text, isIncome, timeCreation)
+        val tag = Tag(-1, text, isIncome)
         return tag
     }
 }

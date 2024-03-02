@@ -85,8 +85,9 @@ class DetailEntryActivity : AppCompatActivity() {
     private fun showList(){
         val helper = DataBaseHelper(this)
         val tagList : MutableList<Tag> = mutableListOf()
-        tagList.add(helper.get_Tag(entry.get_tag()))
-
+        for (tag in entry.get_tags()){
+            tagList.add(helper.get_Tag(tag))
+        }
         gv_tag.adapter = TagAdapter(this, tagList, false)
     }
 }
