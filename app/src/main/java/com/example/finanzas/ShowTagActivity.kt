@@ -32,12 +32,12 @@ class ShowTagActivity : AppCompatActivity() {
         tv_send = findViewById(R.id.TV_send)
 
         val helper = DataBaseHelper(this)
-        tagList = helper.get_all_tag(isIncome)
+        tagList = helper.get_all_tag_by_income(isIncome)
     }
 
     private fun showList(){
         gv_tag.isClickable = true
-        gv_tag.adapter = TagAdapter(this, tagList, true)
+        gv_tag.adapter = TagAdapter(this, tagList, true, false)
     }
 
     private fun initListeners(){

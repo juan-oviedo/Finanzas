@@ -8,7 +8,8 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 
-class TagAdapter (private val context : Activity, private val tagList : MutableList<Tag>, private val isClickeble : Boolean)
+class TagAdapter (private val context : Activity, private val tagList : MutableList<Tag>,
+                  private val isClickeble : Boolean, private val redGreen : Boolean)
                 : ArrayAdapter<Tag>(context, R.layout.show_tag, tagList){
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -26,7 +27,13 @@ class TagAdapter (private val context : Activity, private val tagList : MutableL
                 tag.setBackgroundColor(ContextCompat.getColor(context, R.color.purple_200))
             }
         }
-
+        else if (redGreen){
+            if (tagList[position].get_is_income()) {
+                tag.setBackgroundColor(ContextCompat.getColor(context, R.color.green))
+            } else {
+                tag.setBackgroundColor(ContextCompat.getColor(context, R.color.red))
+            }
+        }
         return view
     }
 }

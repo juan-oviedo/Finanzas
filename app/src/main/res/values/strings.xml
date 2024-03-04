@@ -22,4 +22,6 @@
     <string name="Balance_for_tag">Balance por tag</string>
     <string name="Edit">Editar</string>
     <string name="Delete">Borrar</string>
+    <string name="list_tags">lista de etiquetas</string>
+    <string name="add_a_tag">Agregar una etiqueta</string>
 </resources>

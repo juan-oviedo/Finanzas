@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter
 
 class AddTagActivity : AppCompatActivity() {
 
+    private var isUpdate : Boolean = false
+    private var tagId : Long = -1
     private lateinit var et_name : EditText
     private lateinit var s_isIncome : SwitchCompat
     private lateinit var tv_send : TextView
@@ -17,8 +19,14 @@ class AddTagActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_tag)
 
+        initAttributes()
         initComponents()
         initListeners()
+    }
+
+    private fun initAttributes(){
+        isUpdate = intent.getBooleanExtra("isUpdate", false)
+        tagId = intent.getLongExtra("tagId", -1)
     }
 
     private fun initComponents(){
@@ -31,7 +39,13 @@ class AddTagActivity : AppCompatActivity() {
         tv_send.setOnClickListener{
             val tag = getTag()
             val helper = DataBaseHelper(this)
-            helper.add_Tag(tag)
+
+            if (isUpdate){
+                helper.update_Tag(tag)
+            }
+            else{
+                helper.add_Tag(tag)
+            }
             finish()
         }
     }
@@ -40,7 +54,7 @@ class AddTagActivity : AppCompatActivity() {
         // ver de sanitizar el string
         val text = et_name.text.toString()
         val isIncome = s_isIncome.isChecked
-        val tag = Tag(-1, text, isIncome)
+        val tag = Tag(tagId, text, isIncome)
         return tag
     }
 }

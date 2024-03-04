@@ -179,11 +179,38 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         return tagIds.toList()
     }
 
-    fun get_all_tag (isIncome : Boolean) : MutableList<Tag> {
+    fun get_all_tag_by_income (isIncome : Boolean) : MutableList<Tag> {
         val returnList: MutableList<Tag> = mutableListOf()
 
         val query = "SELECT * FROM $Tag_Table " +
                     " WHERE $Column_Tag_INCOME = $isIncome AND $Column_Tag_ID != 1 AND $Column_Tag_TIME_DELETION IS NULL"
+
+        val db : SQLiteDatabase = this.readableDatabase
+
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()){
+            do {
+                val id = cursor.getLong(0)
+                val name = cursor.getString(1)
+                val income = cursor.getInt(2) == 1
+
+                val tag = Tag(id, name, income)
+                returnList.add(tag)
+
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return returnList
+    }
+
+    fun get_all_tags () : MutableList<Tag> {
+        val returnList: MutableList<Tag> = mutableListOf()
+
+        val query = "SELECT * FROM $Tag_Table " +
+                " WHERE $Column_Tag_ID != 1 AND $Column_Tag_TIME_DELETION IS NULL"
 
         val db : SQLiteDatabase = this.readableDatabase
 
@@ -324,8 +351,12 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         return id
     }
 
+    /**
+     * This function gets a tag from the data base,
+     * if the tag has been eliminated, the return tag would have tag id = -1
+     */
     fun get_Tag (tagId : Long): Tag {
-        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_ID == $tagId AND $Column_Tag_TIME_DELETION IS NULL"
+        val query = "SELECT * FROM $Tag_Table WHERE $Column_Tag_ID = $tagId"
 
         val db : SQLiteDatabase = this.readableDatabase
 
@@ -343,6 +374,9 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
 
         cursor.moveToFirst()
 
+        if (cursor.getString(3) != null){
+            return Tag(-1, "", false)
+        }
         val id = cursor.getLong(0)
         val name = cursor.getString(1)
         val income = cursor.getInt(2) == 1
@@ -352,6 +386,48 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         cursor.close()
         db.close()
         return tag
+    }
+
+    fun update_Tag (tag: Tag): Long {
+        val db : SQLiteDatabase = this.writableDatabase
+        val cv = ContentValues()
+        val id = tag.get_id()
+
+        cv.put(Column_Tag_NAME, tag.get_name())
+        cv.put(Column_Tag_INCOME, tag.get_is_income())
+
+        val affectedRows  = db.update(Tag_Table, cv, "$Column_Tag_ID = $id", null )
+
+        if (affectedRows == 0) {
+            // Handle the case where no rows were affected (entry with the given ID not found)
+            db.close()
+            throw IllegalStateException("No entry found with ID $id")
+        }
+
+        db.close()
+        return id
+    }
+
+    fun delete_Tag (tag: Tag): Long {
+        val db : SQLiteDatabase = this.writableDatabase
+        val cv = ContentValues()
+
+        val time = LocalDateTime.now()
+        val timeDeletion = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+        cv.put(Column_Tag_TIME_DELETION, timeDeletion)
+
+        val id = tag.get_id()
+
+        val affectedRows  = db.update(Tag_Table, cv, "$Column_Tag_ID = $id", null )
+
+        if (affectedRows == 0) {
+            // Handle the case where no rows were affected (entry with the given ID not found)
+            db.close()
+            throw IllegalStateException("No entry found with ID $id")
+        }
+        db.close()
+        return id
     }
     /*
     fun time (){

@@ -10,7 +10,7 @@ import java.util.Date
 class MainActivity : AppCompatActivity() {
 
     private lateinit var add_income: CardView
-    private lateinit var add_tag: CardView
+    private lateinit var tags: CardView
     private lateinit var add_cost: CardView
     private lateinit var balance: CardView
 
@@ -24,14 +24,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun initComponents(){
         add_income = findViewById(R.id.Add_income)
-        add_tag = findViewById(R.id.Add_tag)
+        tags = findViewById(R.id.Tags)
         add_cost = findViewById(R.id.Add_cost)
         balance = findViewById(R.id.Balance)
     }
 
     private fun initListeners(){
         add_income.setOnClickListener{ navigateToAddIncome() }
-        add_tag.setOnClickListener{navigateToAddTag()}
+        tags.setOnClickListener{navigateToTag()}
         add_cost.setOnClickListener { navigateToAddCost() }
         balance.setOnClickListener { navigateToBalance() }
     }
@@ -42,8 +42,8 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToAddTag (){
-        val intent = Intent(this, AddTagActivity::class.java)
+    private fun navigateToTag (){
+        val intent = Intent(this, TagsActivity::class.java)
         startActivity(intent)
     }
 
