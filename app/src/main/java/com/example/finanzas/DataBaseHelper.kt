@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import java.time.LocalDateTime
+import java.time.Month
 import java.time.format.DateTimeFormatter
 
 const val Entry_Table = "`Entry_Table`"
@@ -429,12 +430,50 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         db.close()
         return id
     }
+
+
+    fun get_tag_by_date(startTimeString: String, endTimeString : String, result : Results): MutableList<Entry>{
+        val returnList: MutableList<Entry> = mutableListOf()
+
+        val query = "SELECT * FROM $Entry_Table " +
+                "WHERE $Column_Entry_TIME_DELETION IS NULL AND $Column_Entry_TIME_CREATION BETWEEN '$startTimeString' AND '$endTimeString'"
+
+        val db : SQLiteDatabase = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()){
+            do {
+                val id = cursor.getLong(0)
+                val amount = cursor.getDouble(1)
+                val income = cursor.getInt(2) == 1
+                val timeCreation = cursor.getString(3)
+                val tagIds = get_entry_tags(id)
+
+                val entry = Entry(id, amount, tagIds, income, timeCreation)
+                returnList.add(entry)
+                result.calculateResult(amount, income)
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return returnList
+    }
+
     /*
     fun time (){
         val timestampString = LocalDateTime.now()
         val string = timestampString.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
         val timestamp = LocalDateTime.parse(string, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+
+
+
+        val startTime: LocalDateTime = LocalDateTime.of(2024, Month.MARCH, 3, 14, 38) // Example start time
+        val endTime: LocalDateTime = LocalDateTime.of(2024, Month.MARCH, 3, 14, 43) // Example end time
+        // Convert LocalDateTime objects to string representations in the same format as in your database
+        val startTimeString = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        val endTimeString = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     }
     */
 }
