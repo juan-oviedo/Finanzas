@@ -62,10 +62,11 @@
                 android:textSize="30sp" />
 
             <DatePicker
+                android:id="@+id/DP_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:datePickerMode="calendar"
-                android:visibility="gone" />
+                />
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.cardview.widget.CardView>

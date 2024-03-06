@@ -2,7 +2,7 @@ package com.example.finanzas
 
 
 class Entry (private var id : Long, private var amount : Double, private var tags : List<Long>,
-             private var income: Boolean, private var timeCreation : String) {
+             private var income: Boolean, private var timeCreation : String, private var date : String) {
     fun get_id (): Long {
         return id
     }
@@ -36,6 +36,13 @@ class Entry (private var id : Long, private var amount : Double, private var tag
     }
     fun set_timeCreation (newTimeCreation : String){
         timeCreation = newTimeCreation
+    }
+
+    fun get_date (): String{
+        return date
+    }
+    fun set_date (newDate : String){
+        date = newDate
     }
 }
 

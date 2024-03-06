@@ -15,6 +15,7 @@ const val Column_Entry_ID = "`ID_Entry`"
 const val Column_Entry_AMOUNT = "`Amount`"
 const val Column_Entry_INCOME = "`IS_INCOME_Entry`"
 const val Column_Entry_TIME_CREATION = "`TIME_CREATION_Entry`"
+const val Column_Entry_DATE = "`DATE_Entry`"
 const val Column_Entry_TIME_UPDATE = "`TIME_UPDATE_Entry`"
 const val Column_Entry_TIME_DELETION = "`TIME_DELETION_Entry`"
 
@@ -36,6 +37,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 " $Column_Entry_AMOUNT DECIMAL(10,2) NOT NULL DEFAULT '0.0', " +
                 " $Column_Entry_INCOME Boolean NOT NULL DEFAULT 'TRUE' , " +
                 " $Column_Entry_TIME_CREATION char(23)  NOT NULL DEFAULT '' ," +
+                " $Column_Entry_DATE char(23)  NOT NULL DEFAULT '' ," +
                 " $Column_Entry_TIME_UPDATE char(23)  NOT NULL DEFAULT '' ," +
                 " $Column_Entry_TIME_DELETION char(23) " +
                 " ) "
@@ -54,6 +56,21 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 " FOREIGN KEY ($Column_EntryTag_ID_TAG) REFERENCES $Tag_Table($Column_Tag_ID), " +
                 " PRIMARY KEY ($Column_EntryTag_ID_ENTRY, $Column_EntryTag_ID_TAG) " +
                 " ) "
+
+        /*
+        para gregar un ahorro hay que agregar una tabla que tenga
+        la cantidad de pesos, el tipo de ahorro, la cantidad en la otra moneda y la fecha que se realizo el cambio.
+        entonces cuando se agrega hay que buscar la cotizacion de ese dia y realizar el cambio
+        luego cuando se quiera ver la cotizacion actual hay que buscar la cotizacion de hoy y realizar los cambios
+        luego para realizar un cambio de un ahorro se tiene que seleccionar un ahorro y cambiar,
+        lo que tendria que buscar la cotizacion del dia y agregar como ingreso la venta
+
+        ademas deberia agregar una columna que se si es editable una entrada,
+        para que al agregar un ahorro, se ponga como costo, y no se pueda editar por el usuario
+        lo que se edita es el ahorro que luego llama a una funcion que edite el costo
+
+        para borrar un ahorro se borra de la tabla y ademas se borra el costo de la tabla de entry
+         */
 
         db.execSQL(createTableTag)
         db.execSQL(createTableEntry)
@@ -79,6 +96,7 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         cv.put(Column_Entry_AMOUNT, entry.get_amount())
         cv.put(Column_Entry_INCOME, entry.get_income())
         cv.put(Column_Entry_TIME_CREATION, entry.get_timeCreation())
+        cv.put(Column_Entry_DATE, entry.get_date())
 
         val id = db.insert(Entry_Table, null, cv)
         entry.set_id(id)
@@ -151,9 +169,10 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 val amount = cursor.getDouble(1)
                 val income = cursor.getInt(2) == 1
                 val timeCreation = cursor.getString(3)
+                val date = cursor.getString(4)
                 val tagIds = get_entry_tags(id)
 
-                val entry = Entry(id, amount, tagIds, income, timeCreation)
+                val entry = Entry(id, amount, tagIds, income, timeCreation, date)
                 returnList.add(entry)
                 result.calculateResult(amount, income)
             }while (cursor.moveToNext())
@@ -292,9 +311,10 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         val amount = cursor.getDouble(1)
         val income = cursor.getInt(2) == 1
         val timeCreation = cursor.getString(3)
+        val date = cursor.getString(4)
         val tagIds = get_entry_tags(entryId)
 
-        val entry = Entry(id, amount, tagIds, income, timeCreation)
+        val entry = Entry(id, amount, tagIds, income, timeCreation, date)
 
         cursor.close()
         db.close()
@@ -310,7 +330,9 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
 
         cv.put(Column_Entry_AMOUNT, entry.get_amount())
         cv.put(Column_Entry_INCOME, entry.get_income())
+        cv.put(Column_Entry_DATE, entry.get_date())
         cv.put(Column_Entry_TIME_UPDATE, timeUpdate)
+
 
         val affectedRows  = db.update(Entry_Table, cv, "$Column_Entry_ID == $id", null )
 
@@ -432,11 +454,11 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
     }
 
 
-    fun get_tag_by_date(startTimeString: String, endTimeString : String, result : Results): MutableList<Entry>{
+    fun get_entry_by_date(startTimeString: String, endTimeString : String, result : Results): MutableList<Entry>{
         val returnList: MutableList<Entry> = mutableListOf()
 
         val query = "SELECT * FROM $Entry_Table " +
-                "WHERE $Column_Entry_TIME_DELETION IS NULL AND $Column_Entry_TIME_CREATION BETWEEN '$startTimeString' AND '$endTimeString'"
+                "WHERE $Column_Entry_TIME_DELETION IS NULL AND $Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'"
 
         val db : SQLiteDatabase = this.readableDatabase
         val cursor = db.rawQuery(query, null)
@@ -447,11 +469,50 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 val amount = cursor.getDouble(1)
                 val income = cursor.getInt(2) == 1
                 val timeCreation = cursor.getString(3)
+                val date = cursor.getString(4)
                 val tagIds = get_entry_tags(id)
 
-                val entry = Entry(id, amount, tagIds, income, timeCreation)
+                val entry = Entry(id, amount, tagIds, income, timeCreation, date)
                 returnList.add(entry)
                 result.calculateResult(amount, income)
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return returnList
+    }
+
+    fun get_tag_balance_by_date (startTimeString: String, endTimeString : String): MutableList<TagBalance>{
+        val returnList: MutableList<TagBalance> = mutableListOf()
+
+        val query = "SELECT " +
+                " t.$Column_Tag_ID AS tag_id, " +
+                " t.$Column_Tag_NAME AS tag_name, " +
+                " t.$Column_Tag_INCOME AS is_income, " +
+                " SUM(e.$Column_Entry_AMOUNT) AS total_amount " +
+                " FROM $Entry_Table e " +
+                " JOIN $EntryTag_Table et ON e.$Column_Entry_ID = et.$Column_EntryTag_ID_ENTRY " +
+                " JOIN $Tag_Table t ON et.$Column_EntryTag_ID_TAG = t.$Column_Tag_ID " +
+                " WHERE t.$Column_Tag_ID != 1 " +
+                " AND e.$Column_Entry_TIME_DELETION IS NULL " +
+                " AND t.$Column_Tag_TIME_DELETION IS NULL " +
+                " AND e.$Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'" +
+                " GROUP BY t.$Column_Tag_ID "
+
+        val db : SQLiteDatabase = this.readableDatabase
+
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()){
+            do {
+                val id = cursor.getLong(0)
+                val name = cursor.getString(1)
+                val income = cursor.getInt(2) == 1
+                val amount = cursor.getDouble(3)
+
+                val tagBalance = TagBalance(id, name, income, amount)
+                returnList.add(tagBalance)
             }while (cursor.moveToNext())
         }
 

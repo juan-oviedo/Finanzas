@@ -14,6 +14,8 @@ class ListEntryActivity : AppCompatActivity() {
     private lateinit var tv_cost : TextView
     private lateinit var tv_income : TextView
     private lateinit var tv_balance : TextView
+    private var startDateString : String = "null"
+    private var endDateString : String = "null"
 
     //through this variable i am going to get the results in the function get All Entry
     private var result = Results()
@@ -21,6 +23,7 @@ class ListEntryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_entry)
 
+        initAttributes()
         initComponents()
         initListeners()
         showList()
@@ -33,6 +36,11 @@ class ListEntryActivity : AppCompatActivity() {
         showList()
     }
 
+    private fun initAttributes(){
+        startDateString = intent.getStringExtra("startDateString").toString()
+        endDateString = intent.getStringExtra("endDateString").toString()
+    }
+
     private fun initComponents(){
         lv_entry = findViewById(R.id.LV_entry)
         tv_cost = findViewById(R.id.TV_cost)
@@ -40,7 +48,12 @@ class ListEntryActivity : AppCompatActivity() {
         tv_balance = findViewById(R.id.TV_balance)
 
         val helper = DataBaseHelper(this)
-        entryList = helper.get_all_Entry(result)
+        if (startDateString == "null" && endDateString == "null"){
+            entryList = helper.get_all_Entry(result)
+        }
+        else{
+            entryList = helper.get_entry_by_date(startDateString, endDateString, result)
+        }
     }
 
     private fun showList(){
@@ -49,6 +62,7 @@ class ListEntryActivity : AppCompatActivity() {
         tv_cost.text = result.getCost().toString()
         tv_income.text = result.getIncome().toString()
         tv_balance.text = result.getResult().toString()
+        TODO("agregar al adapter y al layout que muestre la fecha de cada entrada")
     }
 
     private fun initListeners(){

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -13,15 +14,18 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.content.ContextCompat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 
 class AddIncomeActivity : AppCompatActivity() {
 
     private var isIncome : Boolean = true
     private var isUpdate : Boolean = false
     private var entryID : Long = -1
+    private var date : String = ""
     private lateinit var et_amount : EditText
     private lateinit var tv_tag: TextView
     private lateinit var tv_send : TextView
+    private lateinit var dp_date : DatePicker
     private lateinit var showTagLauncher: ActivityResultLauncher<Intent>
     private var tagIds : LongArray? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,8 +34,8 @@ class AddIncomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_income)
 
         initAttributes()
-        initLayout()
         initComponents()
+        initLayout()
         initListeners()
         initLauncher()
     }
@@ -47,12 +51,15 @@ class AddIncomeActivity : AppCompatActivity() {
             val ll_body : LinearLayoutCompat = findViewById(R.id.LL_body)
             ll_body.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
         }
+        val calendar = Calendar.getInstance()
+        dp_date.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),null)
     }
 
     private fun initComponents(){
         et_amount = findViewById(R.id.ET_amount)
         tv_tag = findViewById(R.id.TV_tag)
         tv_send = findViewById(R.id.TV_send)
+        dp_date = findViewById(R.id.DP_date)
     }
 
     private fun initListeners(){
@@ -89,9 +96,11 @@ class AddIncomeActivity : AppCompatActivity() {
         val time = LocalDateTime.now()
         val timeCreation = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
+        TODO("extraer los datos de la fecha del calendario")
+
         val tagList = tagIds?.toList() ?: emptyList()
 
-        val entry = Entry(entryID, value, tagList, isIncome, timeCreation)
+        val entry = Entry(entryID, value, tagList, isIncome, timeCreation, date)
 
         return entry
     }

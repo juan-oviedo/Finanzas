@@ -64,6 +64,7 @@ class DetailEntryActivity : AppCompatActivity() {
             val ll_body : ConstraintLayout = findViewById(R.id.CL_root)
             ll_body.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
         }
+        TODO("agregar que se muestre la fecha de la entrada")
     }
 
     private fun initListeners(){
