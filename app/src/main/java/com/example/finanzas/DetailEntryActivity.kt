@@ -15,10 +15,11 @@ import androidx.core.content.ContextCompat
 
 class DetailEntryActivity : AppCompatActivity() {
 
-    private var entryId :Long = 0
+    private var entryId :Long = -1
     private lateinit var entry : Entry
     private lateinit var ll_body : ConstraintLayout
     private lateinit var tv_amount : TextView
+    private lateinit var tv_date : TextView
     private lateinit var gv_tag : GridView
     private lateinit var tv_edit : TextView
     private lateinit var tv_delete : TextView
@@ -42,12 +43,13 @@ class DetailEntryActivity : AppCompatActivity() {
     }
 
     private fun initAttributes(){
-        entryId = intent.getLongExtra("id", 0)
+        entryId = intent.getLongExtra("id", -1)
     }
 
     private fun initComponents(){
         ll_body = findViewById(R.id.CL_root)
         tv_amount = findViewById(R.id.TV_amount)
+        tv_date = findViewById(R.id.TV_date)
         gv_tag = findViewById(R.id.GV_tag)
         tv_edit = findViewById(R.id.TV_edit)
         tv_delete = findViewById(R.id.TV_delete)
@@ -60,11 +62,14 @@ class DetailEntryActivity : AppCompatActivity() {
 
         tv_amount.text = entry.get_amount().toString()
 
+        val date = entry.get_date()
+        tv_date.text = date.substring(0, 10)
+
         if (! entry.get_income()){
             val ll_body : ConstraintLayout = findViewById(R.id.CL_root)
             ll_body.setBackgroundColor(ContextCompat.getColor(this, R.color.red))
         }
-        TODO("agregar que se muestre la fecha de la entrada")
+
     }
 
     private fun initListeners(){

@@ -1,5 +1,6 @@
 package com.example.finanzas
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ListView
@@ -8,48 +9,52 @@ class TagBalanceActivity : AppCompatActivity() {
 
     private lateinit var tagBalanceList : MutableList<TagBalance>
     private lateinit var lv_tag_balance : ListView
+    private var startDateString : String = "null"
+    private var endDateString : String = "null"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tag_balance)
 
+        initAttributes()
         initComponents()
+        initListeners()
         showList()
-        //initListeners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        initComponents()
+        initListeners()
+        showList()
+    }
+    private fun initAttributes(){
+        startDateString = intent.getStringExtra("startDateString").toString()
+        endDateString = intent.getStringExtra("endDateString").toString()
     }
 
     private fun initComponents(){
         lv_tag_balance = findViewById(R.id.LV_tag_balance)
 
         val helper = DataBaseHelper(this)
-        tagBalanceList = helper.get_tag_balance()
+        tagBalanceList = helper.get_tag_balance(startDateString, endDateString)
+
     }
 
     private fun showList(){
         lv_tag_balance.isClickable = true
         lv_tag_balance.adapter = TagBalanceAdapter(this, tagBalanceList)
-        //show something if tagbalanlist is empty
+        //show something if tagbalancelist is empty
     }
 
-    /*
-    private fun initListeners(){
-        gv_tag.setOnItemClickListener { parent, view, position, id ->
+    private fun initListeners() {
+        lv_tag_balance.setOnItemClickListener { parent, view, position, id ->
 
-            tagList[position].change_is_clicked()
-            (parent.adapter as TagAdapter).notifyDataSetChanged()
-            if (tagList[position].get_is_clicked()){
-                idList.add(tagList[position].get_id())
-            }
-            else{
-                idList.remove(tagList[position].get_id())
-            }
-        }
-
-        tv_send.setOnClickListener {
-            val resultIntent = Intent()
-            resultIntent.putExtra("tagIds", idList.toLongArray())
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+            val intent = Intent(this, ListEntryByTagActivity::class.java)
+            intent.putExtra("tagId", tagBalanceList[position].get_id())
+            intent.putExtra("startDateString", startDateString)
+            intent.putExtra("endDateString", endDateString)
+            startActivity(intent)
         }
     }
-    */
 }

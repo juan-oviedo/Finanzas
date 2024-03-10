@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Finanzas"
         tools:targetApi="31">
         <activity
+            android:name=".ListEntryByTagActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SelectDateActivity"
+            android:exported="false" />
+        <activity
             android:name=".DetailTagActivity"
             android:exported="false" />
         <activity

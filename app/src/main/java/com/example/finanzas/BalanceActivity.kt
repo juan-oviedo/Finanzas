@@ -23,23 +23,13 @@ class BalanceActivity : AppCompatActivity() {
     }
 
     private fun initListeners(){
-        tv_calculateBalance.setOnClickListener{navigateListEntry()}
-        tv_balanceForTag.setOnClickListener { navigateToTagBalance() }
+        tv_calculateBalance.setOnClickListener{ navigateToSelectDate(true)}
+        tv_balanceForTag.setOnClickListener { navigateToSelectDate (false) }
     }
 
-    private fun navigateListEntry (){
-        val intent = Intent(this, ListEntryActivity::class.java)
+    private  fun navigateToSelectDate( isEntry : Boolean){
+        val intent = Intent(this, SelectDateActivity::class.java)
+        intent.putExtra("isEntry", isEntry)
         startActivity(intent)
-        TODO("agregar popup intermedio para elejir fecha")
-        /*
-        una posible solucion es que calcule siempre el mensual
-        y dentro de listEntry haya un boton para seleccionar el intervalo
-         */
-    }
-
-    private  fun navigateToTagBalance(){
-        val intent = Intent(this, TagBalanceActivity::class.java)
-        startActivity(intent)
-        TODO("agregar popup intermedio para elejir fecha")
     }
 }

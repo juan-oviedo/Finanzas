@@ -24,4 +24,9 @@
     <string name="Delete">Borrar</string>
     <string name="list_tags">lista de etiquetas</string>
     <string name="add_a_tag">Agregar una etiqueta</string>
+    <string name="monthly_balance">Balance Mensual</string>
+    <string name="historical_balance">Balance Historico</string>
+    <string name="customised_balance">Balance Personalizado</string>
+    <string name="start_date">fecha de incio</string>
+    <string name="end_date">fecha de fin</string>
 </resources>

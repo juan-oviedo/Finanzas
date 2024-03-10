@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/purple_200"
         app:cardCornerRadius="16dp"
-        android:visibility="gone">
+        >
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
@@ -54,6 +54,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/TV_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -66,6 +67,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:datePickerMode="calendar"
+                android:background="@color/white"
+                android:visibility="gone"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
 

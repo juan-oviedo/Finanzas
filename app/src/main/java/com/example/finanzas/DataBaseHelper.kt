@@ -151,14 +151,22 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
     }
 
     /**
-     * This function get all entries from the data base,
+     * This function get entries from the data base,
+     * if startTimeString is "null" and endTimeString "null", returns all entrys
      * also (for efficiency) calculate the balance.
      * the balance is return by the object result
      */
-    fun get_all_Entry (result : Results): MutableList<Entry> {
+    fun get_entrys (startTimeString: String, endTimeString : String, result : Results): MutableList<Entry> {
         val returnList: MutableList<Entry> = mutableListOf()
 
-        val query = "SELECT * FROM $Entry_Table WHERE $Column_Entry_TIME_DELETION IS NULL"
+        val query : String
+        if (startTimeString == "null" && endTimeString == "null"){
+            query = "SELECT * FROM $Entry_Table WHERE $Column_Entry_TIME_DELETION IS NULL"
+        }
+        else{
+            query = "SELECT * FROM $Entry_Table " +
+                    "WHERE $Column_Entry_TIME_DELETION IS NULL AND $Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'"
+        }
 
         val db : SQLiteDatabase = this.readableDatabase
         val cursor = db.rawQuery(query, null)
@@ -177,9 +185,54 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                 result.calculateResult(amount, income)
             }while (cursor.moveToNext())
         }
-
         cursor.close()
         db.close()
+        // Sort the list by the get_date() method of each Entry
+        returnList.sortBy { it.get_date() }
+        return returnList
+    }
+
+    /**
+     * This function get entries from the data base that have an specific tag,
+     * if startTimeString is "null" and endTimeString "null", returns all entrys
+     */
+    fun get_entrys_by_tag (startTimeString: String, endTimeString : String, tagId: Long, result : Results): MutableList<Entry> {
+        val returnList: MutableList<Entry> = mutableListOf()
+
+        val query : String
+        if (startTimeString == "null" && endTimeString == "null"){
+            query = "SELECT * FROM $Entry_Table " +
+                    "JOIN $EntryTag_Table ON $Entry_Table.$Column_Entry_ID = $EntryTag_Table.$Column_EntryTag_ID_ENTRY" +
+                    "WHERE $Column_Entry_TIME_DELETION IS NULL AND $EntryTag_Table.$Column_EntryTag_ID_TAG = $tagId"
+        }
+        else{
+            query = "SELECT * FROM $Entry_Table " +
+                    "JOIN $EntryTag_Table ON $Entry_Table.$Column_Entry_ID = $EntryTag_Table.$Column_EntryTag_ID_ENTRY" +
+                    "WHERE $Column_Entry_TIME_DELETION IS NULL AND $EntryTag_Table.$Column_EntryTag_ID_TAG = $tagId " +
+                    " AND $Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'"
+        }
+
+        val db : SQLiteDatabase = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+
+        if (cursor.moveToFirst()){
+            do {
+                val id = cursor.getLong(0)
+                val amount = cursor.getDouble(1)
+                val income = cursor.getInt(2) == 1
+                val timeCreation = cursor.getString(3)
+                val date = cursor.getString(4)
+                val tagIds = get_entry_tags(id)
+
+                val entry = Entry(id, amount, tagIds, income, timeCreation, date)
+                returnList.add(entry)
+                result.calculateResult(amount, income)
+            }while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        // Sort the list by the get_date() method of each Entry
+        returnList.sortBy { it.get_date() }
         return returnList
     }
 
@@ -195,7 +248,6 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
             }while (cursorTag.moveToNext())
         }
         cursorTag.close()
-        db.close()
         return tagIds.toList()
     }
 
@@ -253,10 +305,17 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         return returnList
     }
 
-    fun get_tag_balance (): MutableList<TagBalance>{
+    /**
+     * this function returns the balance of each tag,
+     * if startTimeString == "null" and endTimeString ==  "null"
+     * it returns the all time balance of each tag
+     */
+    fun get_tag_balance (startTimeString: String, endTimeString : String): MutableList<TagBalance>{
         val returnList: MutableList<TagBalance> = mutableListOf()
 
-        val query = "SELECT " +
+        val query: String
+        if (startTimeString ==  "null" && endTimeString ==  "null"){
+            query = "SELECT " +
                     " t.$Column_Tag_ID AS tag_id, " +
                     " t.$Column_Tag_NAME AS tag_name, " +
                     " t.$Column_Tag_INCOME AS is_income, " +
@@ -266,6 +325,23 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
                     " JOIN $Tag_Table t ON et.$Column_EntryTag_ID_TAG = t.$Column_Tag_ID " +
                     " WHERE t.$Column_Tag_ID != 1 AND e.$Column_Entry_TIME_DELETION IS NULL AND t.$Column_Tag_TIME_DELETION IS NULL" +
                     " GROUP BY t.$Column_Tag_ID "
+        }
+        else{
+            query = "SELECT " +
+                    " t.$Column_Tag_ID AS tag_id, " +
+                    " t.$Column_Tag_NAME AS tag_name, " +
+                    " t.$Column_Tag_INCOME AS is_income, " +
+                    " SUM(e.$Column_Entry_AMOUNT) AS total_amount " +
+                    " FROM $Entry_Table e " +
+                    " JOIN $EntryTag_Table et ON e.$Column_Entry_ID = et.$Column_EntryTag_ID_ENTRY " +
+                    " JOIN $Tag_Table t ON et.$Column_EntryTag_ID_TAG = t.$Column_Tag_ID " +
+                    " WHERE t.$Column_Tag_ID != 1 " +
+                    " AND e.$Column_Entry_TIME_DELETION IS NULL " +
+                    " AND t.$Column_Tag_TIME_DELETION IS NULL " +
+                    " AND e.$Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'" +
+                    " GROUP BY t.$Column_Tag_ID "
+
+        }
 
         val db : SQLiteDatabase = this.readableDatabase
 
@@ -451,74 +527,6 @@ class DataBaseHelper (context: Context) : SQLiteOpenHelper(context, "Finanzas.db
         }
         db.close()
         return id
-    }
-
-
-    fun get_entry_by_date(startTimeString: String, endTimeString : String, result : Results): MutableList<Entry>{
-        val returnList: MutableList<Entry> = mutableListOf()
-
-        val query = "SELECT * FROM $Entry_Table " +
-                "WHERE $Column_Entry_TIME_DELETION IS NULL AND $Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'"
-
-        val db : SQLiteDatabase = this.readableDatabase
-        val cursor = db.rawQuery(query, null)
-
-        if (cursor.moveToFirst()){
-            do {
-                val id = cursor.getLong(0)
-                val amount = cursor.getDouble(1)
-                val income = cursor.getInt(2) == 1
-                val timeCreation = cursor.getString(3)
-                val date = cursor.getString(4)
-                val tagIds = get_entry_tags(id)
-
-                val entry = Entry(id, amount, tagIds, income, timeCreation, date)
-                returnList.add(entry)
-                result.calculateResult(amount, income)
-            }while (cursor.moveToNext())
-        }
-
-        cursor.close()
-        db.close()
-        return returnList
-    }
-
-    fun get_tag_balance_by_date (startTimeString: String, endTimeString : String): MutableList<TagBalance>{
-        val returnList: MutableList<TagBalance> = mutableListOf()
-
-        val query = "SELECT " +
-                " t.$Column_Tag_ID AS tag_id, " +
-                " t.$Column_Tag_NAME AS tag_name, " +
-                " t.$Column_Tag_INCOME AS is_income, " +
-                " SUM(e.$Column_Entry_AMOUNT) AS total_amount " +
-                " FROM $Entry_Table e " +
-                " JOIN $EntryTag_Table et ON e.$Column_Entry_ID = et.$Column_EntryTag_ID_ENTRY " +
-                " JOIN $Tag_Table t ON et.$Column_EntryTag_ID_TAG = t.$Column_Tag_ID " +
-                " WHERE t.$Column_Tag_ID != 1 " +
-                " AND e.$Column_Entry_TIME_DELETION IS NULL " +
-                " AND t.$Column_Tag_TIME_DELETION IS NULL " +
-                " AND e.$Column_Entry_DATE BETWEEN '$startTimeString' AND '$endTimeString'" +
-                " GROUP BY t.$Column_Tag_ID "
-
-        val db : SQLiteDatabase = this.readableDatabase
-
-        val cursor = db.rawQuery(query, null)
-
-        if (cursor.moveToFirst()){
-            do {
-                val id = cursor.getLong(0)
-                val name = cursor.getString(1)
-                val income = cursor.getInt(2) == 1
-                val amount = cursor.getDouble(3)
-
-                val tagBalance = TagBalance(id, name, income, amount)
-                returnList.add(tagBalance)
-            }while (cursor.moveToNext())
-        }
-
-        cursor.close()
-        db.close()
-        return returnList
     }
 
     /*
